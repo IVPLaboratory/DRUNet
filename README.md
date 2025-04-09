@@ -1,270 +1,99 @@
-# [Deep unfolding network for image super-resolution](https://arxiv.org/pdf/2003.10428.pdf)
-[Kai Zhang](https://cszn.github.io/), [Luc Van Gool](https://vision.ee.ethz.ch/people-details.OTAyMzM=.TGlzdC8zMjQ4LC0xOTcxNDY1MTc4.html), [Radu Timofte](http://people.ee.ethz.ch/~timofter/)  
-_[Computer Vision Lab](https://vision.ee.ethz.ch/the-institute.html), ETH Zurich, Switzerland_
+Official repository of our TGRS 2022 paper "Infrared Small UAV Target Detection Based on Depthwise Separable Residual Dense Network and Multiscale Feature Fusion".
 
-[[Paper](https://arxiv.org/pdf/2003.10428.pdf)][[Code](https://github.com/cszn/USRNet/blob/9d1cb1c3244b40828c9058b594ed03d43e306bc3/models/network_usrnet.py#L309)]
+## DRUNet: Infrared Small UAV Target Detection Based on Depthwise Separable Residual Dense Network and Multiscale Feature Fusion [[PDF](https://ieeexplore.ieee.org/abstract/document/9855493/)]
 
-___________
+Houzhang Fang; Lan Ding; Liming Wang; Yi Chang; Luxin Yan; Jinhui Han
 
-* [Classical SISR degradation model](#classical-sisr-degradation-model)
-* [Motivation](#motivation)
-* [Unfolding algorithm](#unfolding-algorithm)
-* [Deep unfolding SR network](#deep-unfolding-sr-network)
-* [Models](#models)
-* [Codes](#codes)
-* [Blur kernels](#blur-kernels)
-* [Approximated bicubic kernel under classical SR degradation model assumption](#approximated-bicubic-kernel-under-classical-sr-degradation-model-assumption)
-* [PSNR results](#psnr-results)
-* [Visual results of USRNet](#visual-results-of-usrnet)
-* [Visual results of USRGAN](#visual-results-of-usrgan)
-* [Results for bicubic degradation](#results-for-bicubic-degradation)
-* [Results for deblurring](#results-for-deblurring)
-* [Generalizability](#generalizability)
-* [Real image SR](#real-image-sr)
-* [Citation](#citation)
+### Abstract
 
+Unmanned aerial vehicles (UAVs) have been widely applied in military and civilian fields, but they also pose great threats to restricted areas, such as densely populated areas and airports. Thermal infrared (IR) imaging technology is capable of monitoring UAVs at a long range in both day and night conditions. Therefore, the anti-UAV technology based on thermal IR imaging has attracted growing attention. However, the images acquired by IR sensors often suffer from small and dim targets, as well as heavy background clutter and noise. Conventional detection methods usually have a high false alarm rate and low detection accuracy. This article proposes a detection method that formulates the UAV detection as predicting the residual image (i.e., background, clutter, and noise) by learning the nonlinear mapping from the input image to the residual image. The UAV target image is obtained by subtracting the residual image from the input IR image. The constructed end-to-end U-shaped network exploits the depthwise separable residual dense blocks in the encoder stage to extract the abundant hierarchical features. Besides, the multiscale feature fusion and representation block is introduced to fully aggregate multiscale features from the encoder layers and intermediate connection layers at the same scale, as well as the decoder layers at different scales, to better reconstruct the residual image in the decoder stage. In addition, the global residual connection is adopted in the proposed network to provide long-distance information compensation and promote gradient backpropagation, which further improves the performance in reconstructing the image. The experimental results show that the proposed method achieves favorable detection performance in real-world IR images and outperforms other state-of-the-art methods in terms of quantitative and qualitative evaluation metrics.
 
+### DRUNet Framework
 
-Classical SISR degradation model
-----------
-For a scale factor of <img src="/figs/s.svg?invert_in_darkmode&sanitize=true"/>, the classical (traditional) degradation model of SISR assumes the low-resolution (LR) image <img src="/figs/y1.svg?invert_in_darkmode&sanitize=true"/> is a blurred, decimated, and noisy version of a high-resolution (HR) image <img src="/figs/x.svg?invert_in_darkmode&sanitize=true"/>. Mathematically, it can be expressed by
+![image-20250409205152929](./image-20250409205152929.png)
 
-<p align="center"><img src="/figs/degradation_model.svg?invert_in_darkmode&sanitize=true"/></p>
+### Visualization
 
-where <img src="/figs/otimes.svg?invert_in_darkmode&sanitize=true"/> represents two-dimensional convolution of <img src="/figs/x.svg?invert_in_darkmode&sanitize=true"/> with blur kernel <img src="/figs/k.svg?invert_in_darkmode&sanitize=true"/>, <img src="/figs/down_s1.svg?invert_in_darkmode&sanitize=true"/> denotes the standard <img src="/figs/s.svg?invert_in_darkmode&sanitize=true" width=8pt height=8pt/>-fold downsampler, i.e., keeping the upper-left pixel for each distinct <img src="/figs/ss.svg?invert_in_darkmode&sanitize=true"/> patch and discarding the others, and n is usually assumed to be additive, white Gaussian noise (AWGN) specified by standard deviation (or noise level) <img src="/figs/sigma.svg?invert_in_darkmode&sanitize=true"/>. With a clear physical meaning, it can approximate a variety of LR images by setting proper blur kernels, scale factors and noises for an underlying HR images. In particular, it has been extensively studied in model-based methods which solve a combination of a data term and a prior term under the MAP framework. Especially noteworthy is that it turns into a special case for deblurring when <img src="/figs/s.svg?invert_in_darkmode&sanitize=true"/> = 1.
+## ![image-20250409205329885](./image-20250409205329885.png)Environment
 
+Python>=3.5 and install torch and torchvision adapted with the current CUDA version.
 
-
-
-Motivation
-----------
-<img src="figs/category.png" width="536px"/>
-
-Learning-based single image super-resolution (SISR)
-methods are continuously showing superior effectiveness
-and efficiency over traditional model-based methods, largely
-due to the end-to-end training. However, different from
-model-based methods that can handle the SISR problem
-with different scale factors, blur kernels and noise levels
-under a unified MAP (maximum a posteriori) framework,
-learning-based methods (e.g., SRMD [3]) generally lack such flexibility.
+### Installation
 
 ```
-[1] "Learning deep CNN denoiser prior for image restoration." CVPR, 2017.
-[2] "Deep plug-and-play super-resolution for arbitrary blur kernels." CVPR, 2019.
-[3] "Learning a single convolutional super-resolution network for multiple degradations." CVPR, 2018.
+pip install -r requirements.txt
 ```
 
-<img src="figs/fig1.png" width="440px"/>
+## How To Test
 
+```shell
+python test.py --weights-file 'weight/epoch_xx.pth' --test_data 'test'
+```
 
-While the classical degradation model can result in various LR images for an HR image, with different blur kernels, scale factors and noise, the study of learning *`a single end-to-end trained deep model`* to invert all such LR images to HR image is still lacking.
+The testing results will be saved in the ./results folder.
 
+## How To Train
 
-**_This work focuses on `non-blind SISR` which assumes the LR image, scale factor, blur kernel and noise level are known beforehand. In fact, non-blind SISR is still an active research direction._**  
-* _First, the blur kernel and noise level can be estimated, or are known based on other information (e.g.,
-camera setting)._
-* _Second, users can control the preference of sharpness and smoothness by tuning the blur kernel and
-noise level._ 
-* _Third, non-blind SISR can be an intermediate step towards solving blind SISR._
+For example:
 
+```shell
+python train.py --lr 1e-4 --epochs 300 --output-dir 'weight' --batch-size 4
+```
 
+Weight files will be stored in the ./weight folder.
 
-Unfolding algorithm
-----------
-By unfolding the MAP inference via a half-quadratic splitting
-algorithm, a fixed number of iterations consisting of alternately solving a `data subproblem` and a `prior subproblem`
-can be obtained.
-
-#TODO
-
-
-
-Deep unfolding SR network
-----------
-We proposes an end-to-end trainable unfolding network which leverages both learning-based
-methods and model-based methods. 
-USRNet inherits the `flexibility of model-based methods` to super-resolve
-blurry, noisy images for different scale factors via `a single
-model`, while maintaining the `advantages of learning-based methods`.
-
-<img src="figs/architecture.png" width="900px"/> 
-
-The overall architecture of the proposed USRNet with 8 iterations. USRNet can flexibly handle the classical degradation
-via `a single model` as it takes the LR image, scale factor, blur kernel and noise level as input. Specifically, USRNet consists of three main modules, including the _**data module D**_ that makes HR estimation clearer, the _**prior module P**_ that makes HR estimation cleaner, and the _**hyper-parameter module H**_ that controls the outputs of _**D**_ and _**P**_.
-
-* **_Data module D:_** _closed-form solution for the data term; contains no trainable parameters_
-* **_Prior module P:_** _ResUNet denoiser for the prior term_
-* **_Hyper-parameter module H:_** _MLP for the hyper-parameter; acts as a slide bar to control the outputs of **D** and **P**_
-
-
-Models
-----------
-
-|Model|# iters|# params|ResUNet|
-|---|:--:|:---:|:---:|
-|[USRNet](https://drive.google.com/file/d/1qz8aaYOAMhoKn07VppFjRsDflYpxeVmz/view?usp=sharing)     | 8 | 17.02M |64-128-256-512|
-|[USRGAN](https://drive.google.com/file/d/1R5HKJzHJmou-3iUYd4cNLSyMeWXSOmD4/view?usp=sharing)     | 8 | 17.02M |64-128-256-512|
-|[USRNet-tiny](https://drive.google.com/file/d/1xPN26OW5YBN9-5QfK2BGnaovSutH7fLX/view?usp=sharing)| 6 | 0.59M  |16-32-64-64   |
-|[USRGAN-tiny](https://drive.google.com/file/d/1U4BV42Qf0dtBOVbhUNRay6di3j_ioZVM/view?usp=sharing)| 6 | 0.59M  |16-32-64-64   |
-
-
-
-Codes
-----------
-
-* [main_test_table1.py](main_test_table1.py):  _Code to produce the results in Table 1_
-* [main_test_bicubic.py](main_test_bicubic.py):  _Code to super-resolve LR images by bicubic degradation and produce the results in Table 2_
-* [main_test_realapplication.py](main_test_realapplication.py):  _Code to super-resolve real LR images_
-
-
-Blur kernels
-----------
-
-|<img src="figs/isotropic_gaussian.gif" width="285px"/>|<img src="figs/anisotropic_gaussian.gif" width="285px"/>|<img src="figs/motion.gif" width="285px"/>|
-|:---:|:---:|:---:|
-|<i>(a) Isotropic Gaussian kernels</i>|<i>(b) Anisotropic Gaussian kernels</i>|<i>(c) Motion blur kernels</i>|
-
-While it has been pointed out that anisotropic Gaussian kernels are enough for SISR task, the SISR method that
-can handle more complex blur kernels would be a preferred choice in real applications.
-
-
-Approximated bicubic kernel under classical SR degradation model assumption
-----------
-
-|<img src="figs/bicubic_kernelx2.png" width="285px"/>|<img src="figs/bicubic_kernelx3.png" width="285px"/>|<img src="figs/bicubic_kernelx4.png" width="285px"/>|
-|:---:|:---:|:---:|
-|<i>(a) [Bicubic kernel](kernels/kernels_bicubicx234.mat) (x2)</i>|<i>(b) [Bicubic kernel](kernels/kernels_bicubicx234.mat) (x3)</i>|<i>(c) [Bicubic kernel](kernels/kernels_bicubicx234.mat) (x4)</i>|
-
-The bicubic degradation can be approximated by setting a proper blur kernel for the classical degradation. Note that the bicubic kernels contain negative values.
-
-
-PSNR results
------------
-
-Run [main_test_table1.py](main_test_table1.py) to produce the following results.
-
-<img src="figs/psnr.png" width="900px"/>  
-The table shows the average PSNR(dB) results of different methods for different combinations of scale factors, blur kernels and noise levels.
-
-
-Visual results of USRNet
-----------
-
-
-<img align="left" src="figs/butterfly_x2_k10_LR.png" width="291px"/>  <img align="center" src="figs/butterfly_x3_k2_LR.png" width="291px"/>  <img align="right" src="figs/butterfly_x4_k7_LR.png" width="291px"/>
-<p align="center"><i>(a) LR images with scale factors 2, 3 and 4</i></p>
-
-
-<img align="left" src="figs/butterfly_x2_k10_usrnet.png" width="291px"/> <img align="center" src="figs/butterfly_x3_k2_usrnet.png" width="291px"/> <img align="right" src="figs/butterfly_x4_k7_usrnet.png" width="291px"/>
-<p align="center"><i>(b) Results by the single USRNet model with s = 2, 3 and 4</i></p>
-
-
-Visual results of USRGAN
-----------
-
-<img align="left" src="figs/parrot_x4_k3_LR.png" width="291px"/>  <img align="center" src="figs/parrot_x4_k6_LR.png" width="291px"/>  <img align="right" src="figs/parrot_x4_k12_LR.png" width="291px"/>
-<p align="center"><i>(a) LR images</i></p>
-
-
-<img align="left" src="figs/parrot_x4_k3_usrgan.png" width="291px"/> <img align="center" src="figs/parrot_x4_k6_usrgan.png" width="291px"/> <img align="right" src="figs/parrot_x4_k12_usrgan.png" width="291px"/>
-<p align="center"><i>(b) Results by USRGAN(x4)</i></p>
-
-
-|<img align="center" src="figs/test_57_x4_k1_LR.png" width="448px"/> | <img align="center" src="figs/test_57_x4_k1_usrgan.png" width="448px"/> |
-|:---:|:---:|
-|<img align="center" src="figs/test_27_x4_k3_LR.png" width="448px"/> | <img align="center" src="figs/test_27_x4_k3_usrgan.png" width="448px"/> |
-|<img align="center" src="figs/test_14_x4_k5_LR.png" width="448px"/>| <img align="center" src="figs/test_14_x4_k5_usrgan.png" width="448px"/>|
-|<img align="center" src="figs/test_36_x4_k9_LR.png" width="448px"/>| <img align="center" src="figs/test_36_x4_k9_usrgan.png" width="448px"/>|
-|<i>(a) LR images</i>|<i>(b) Results by USRGAN(x4)</i>|
-
-
-
-Results for bicubic degradation
-----------
-
-Run [main_test_bicubic.py](main_test_bicubic.py) to produce the following results.
-
-By taking the approximated bicubic blur kernel as input, USRNet and USRGAN achieve very promising results for bicubic degradation. Note that the bicubic kernels are not adopted in training.
-
-* PSNR results of USRNet for bicubic degradation
-
-| Model |  Scale factor | Set5 | Set14 | BSD100 | Urban100 |
-|---|:---:|:---:|:---:|:---:|:---:|
-|       | x2 |  37.72  | 33.49  |  32.10  | 31.79  |
-|USRNet | x3 |  34.45  | 30.51  |  29.18  | 28.38  |
-|       | x4 |  32.45  | 28.83  |  27.69  | 26.44  |
-
-* Visual results of USRGAN for bicubic degradation
-
-<img src="figs/test_19_LR_x4.png" width="120px"/> <img src="figs/test_19_x4.png" width="480px"/> 
-
-<img src="figs/test_35_LR_x4.png" width="120px"/> <img src="figs/test_35_x4.png" width="480px"/> 
-
-<img src="figs/test_42_LR_x4.png" width="120px"/> <img src="figs/test_42_x4.png" width="480px"/> 
-
-<i>(a) LR images via bicubic degradation</i>; <i>(b) results by USRGAN(x4)</i>
-
-
-Results for deblurring
-----------
-
-By setting the scale factor to 1, USRNet can handle deblurring problem.
-
-|<img align="center" src="figs/test_09_x1_k12_LR.png" width="448px"/> | <img align="center" src="figs/test_09_x1_k12_usrnet.png" width="448px"/> |
-|:---:|:---:|
-|<img align="center" src="figs/test_16_x1_k12_LR.png" width="448px"/> | <img align="center" src="figs/test_16_x1_k12_usrnet.png" width="448px"/> |
-|<i>(a) Blurry images</i>|<i>(b) Results by USRNet(x1)</i>|
-
-
-
-
-Generalizability
-----------
-
-<img src="figs/g1_LR.png" width="150px"/> <img src="figs/g1_E.png" width="450px"/> 
-
-<i>(a) LR image with kernel size 67x67; (b) result by USRNet(x3)</i>
-
-_**Even trained with kernel size 25x25, USRNet generalizes well to much larger kernel size.**_
-
-<img src="figs/g2_LR.png" width="150px"/> <img src="figs/g2_E.png" width="450px"/> 
-
-<i>(a) LR image with kernel size 70x70; (b) result by USRGAN(x3)</i>  
-
-_**Even trained with kernel size 25x25 and scale factor 4, USRGAN generalizes well to much larger kernel size and another scale factor 3.**_
-
-
-
-Real image SR
-----------
-
-Run [main_test_realapplication.py](main_test_realapplication.py) to produce the following results.
-
-| <img src="figs/chip.png" width="75px"/>|<img src="figs/chip_x1.png" width="75px"/> |<img src="figs/chip_x2.png" width="150px"/> | <img src="figs/chip_x3.png" width="225px"/>|<img src="figs/chip_x4.png" width="300px"/>|
-|:---:|:---:|:---:|:---:|:---:|
-|<i>LR</i>|<i>USRNet(x1)</i>|<i>USRNet(x2)</i>|<i>USRNet(x3)</i>|<i>USRNet(x4)</i>|
-
-The above results are obtained via `a single USRNet model` by setting different scale factors (x1, x2, x3, x4) and Gaussian blur kernels (with width 0.6, 0.9, 1.7, 2.2).
-
-|<img src="figs/butterfly.bmp" width="430x"/> |<img src="figs/butterfly_x2.bmp" width="430x"/>|
-|:---:|:---:|
-|<i>Zoomed real LR image Butterfly, 256x256</i>|<i>Result by USRNet(x2), 512x512</i>|
-
-|<img src="figs/comic.png" width="430x"/>|<img src="figs/comic_x2.png" width="430x"/>| 
-|:---:|:---:|
-|<i>Zoomed real LR image Comic, 250x361</i>|<i>Result by USRNet(x2), 500x722</i>|
-
-
-
-Citation
-----------
-```BibTex
-@inproceedings{zhang2020deep, % USRNet
-  title={Deep unfolding network for image super-resolution},
-  author={Zhang, Kai and Van Gool, Luc and Timofte, Radu},
-  booktitle={IEEE Conference on Computer Vision and Pattern Recognition},
-  pages={3217--3226},
-  year={2020}
+## Citation
+If you find our work useful in your research, please consider citing our paper using the following BibTeX entry:
+```
+@article{2022TGRS_DRUNet,
+  title     = {{DRUNet}: Infrared Small UAV Target Detection Based on Depthwise Separable Residual Dense Network and Multiscale Feature Fusion},
+  author    = {Houzhang Fang; Lan Ding; Liming Wang; Yi Chang; Luxin Yan; Jinhui Han},
+  journal   = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume    = {71},
+  year      = {2022},
+  pages     = {1-20},
 }
 ```
+
+In additoin to the above paper, please also consider citing the following references. Thank you!
+```
+@inproceedings{2025CVPR_UniCD,
+    title     = {Detection-Friendly Nonuniformity Correction: A Union Framework for Infrared {UAV} Target Detection},
+    author    = {Houzhang Fang; Xiaolin Wang; Zengyang Li; Lu Wang; Qingshan Li; Yi Chang; Luxin Yan},
+    booktitle = {IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+    year      = {2025},
+    pages     = { },
+}
+@ARTICLE{2023TII_DAGNet,
+  title     =  {Differentiated Attention Guided Network Over Hierarchical and Aggregated Features for Intelligent {UAV} Surveillance},
+  author    =  {Houzhang Fang and Zikai Liao and Xuhua Wang and Yi Chang and Luxin Yan},
+  journal   =  {IEEE Transactions on Industrial Informatics}, 
+  year      =  {2023},
+  volume    =  {19},
+  number    =  {9},
+  pages     =  {9909-9920},
+  }
+@inproceedings{2023ACMMM_DANet,
+title       =  {{DANet}: Multi-scale {UAV} Target Detection with Dynamic Feature Perception and Scale-aware Knowledge Distillation},
+author      =  {Houzhang Fang and Zikai Liao and Lu Wang and Qingshan Li and Yi Chang and Luxin Yan and Xuhua Wang},
+booktitle   =  {Proceedings of the 31st ACM International Conference on Multimedia (ACMMM)},
+pages       =  {2121-2130},
+year        =  {2023},
+}
+@ARTICLE{2024TGRS_SCINet,
+title       = {{SCINet}: Spatial and Contrast Interactive Super-Resolution Assisted Infrared {UAV} Target Detection},
+author      = {Houzhang Fang; Lan Ding; Xiaolin Wang; Yi Chang; Luxin Yan; Li Liu; Jinrui Fang},
+journal     = {IEEE Transactions on Geoscience and Remote Sensing},
+volume      = {62},
+year        = {2024},
+pages       = {1-22},
+}
+```
+
+## Contact
+If you have any question, please contact: houzhangfang@xidian.edu.cn,
+
+Copyright &copy; Xidian University.
+
+## License
+MIT License. This code is only freely available for non-commercial research use.
