@@ -14,7 +14,7 @@ Unmanned aerial vehicles (UAVs) have been widely applied in military and civilia
 
 ### Visualization
 
-## ![Visualization](./Visualization.png)Environment
+## ![Visualization](./figs/Visualization.png)Environment
 
 Python>=3.5 and install torch and torchvision adapted with the current CUDA version.
 
