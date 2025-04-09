@@ -14,7 +14,7 @@ Unmanned aerial vehicles (UAVs) have been widely applied in military and civilia
 
 ### Visualization
 
-## ![image-20250409205329885](./image-20250409205329885.png)Environment
+## ![Visualization](./Visualization.png)Environment
 
 Python>=3.5 and install torch and torchvision adapted with the current CUDA version.
 
@@ -26,6 +26,8 @@ pip install -r requirements.txt
 
 ## How To Test
 
+·The testing command is like
+
 ```shell
 python test.py --weights-file 'weight/epoch_xx.pth' --test_data 'test'
 ```
@@ -34,7 +36,7 @@ The testing results will be saved in the ./results folder.
 
 ## How To Train
 
-For example:
+·The training command is like
 
 ```shell
 python train.py --lr 1e-4 --epochs 300 --output-dir 'weight' --batch-size 4
