@@ -10,7 +10,7 @@ Unmanned aerial vehicles (UAVs) have been widely applied in military and civilia
 
 ### DRUNet Framework
 
-![image-20250409205152929](./image-20250409205152929.png)
+![DRUNet_Framework](./figs/DRUNet_Framework.png)
 
 ### Visualization
 
