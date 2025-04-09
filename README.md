@@ -1,6 +1,6 @@
 Official repository of our TGRS 2022 paper "Infrared Small UAV Target Detection Based on Depthwise Separable Residual Dense Network and Multiscale Feature Fusion".
 
-## DRUNet: Infrared Small UAV Target Detection Based on Depthwise Separable Residual Dense Network and Multiscale Feature Fusion [[PDF](https://ieeexplore.ieee.org/abstract/document/9855493/)]
+## Infrared Small UAV Target Detection Based on Depthwise Separable Residual Dense Network and Multiscale Feature Fusion [[PDF](https://ieeexplore.ieee.org/abstract/document/9855493/)]
 
 Houzhang Fang; Lan Ding; Liming Wang; Yi Chang; Luxin Yan; Jinhui Han
 
