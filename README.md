@@ -45,7 +45,7 @@ python train.py --lr 1e-4 --epochs 300 --output-dir 'weight' --batch-size 4
 Weight files will be stored in the ./weight folder.
 
 ## Citation
-If you find our work useful in your research, please consider citing our paper using the following BibTeX entry:
+If you find our work useful for your research, please consider citing our paper:
 ```
 @article{2022TIMFang,
     title     = {Infrared Small {UAV} Target Detection Based on Depthwise Separable Residual Dense Network and Multiscale Feature Fusion},
