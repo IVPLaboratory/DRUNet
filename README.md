@@ -1,6 +1,6 @@
 Official repository of our TIM 2022 paper "Infrared Small UAV Target Detection Based on Depthwise Separable Residual Dense Network and Multiscale Feature Fusion".
 
-## Infrared Small UAV Target Detection Based on Depthwise Separable Residual Dense Network and Multiscale Feature Fusion [[PDF](https://ieeexplore.ieee.org/abstract/document/9855493/)], supplemental material [[PDF](https://ieeexplore.ieee.org/document/9855493/media#media)] 
+## Infrared Small UAV Target Detection Based on Depthwise Separable Residual Dense Network and Multiscale Feature Fusion [[PDF](https://ieeexplore.ieee.org/abstract/document/9855493/)], Supplemental Material [[PDF](https://ieeexplore.ieee.org/document/9855493/media#media)] 
 
 Houzhang Fang; Lan Ding; Liming Wang; Yi Chang; Luxin Yan; Jinhui Han
 
